@@ -6,6 +6,7 @@ import {
 } from 'react-bootstrap';
 import { useMutation, gql } from '@apollo/client'
 import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 const REGISTER = gql`
 mutation Mutation($username: String!, $email: String!, $password: String!) {
   register(username: $username, email: $email, password: $password) {
@@ -14,13 +15,17 @@ mutation Mutation($username: String!, $email: String!, $password: String!) {
 }
 `;
 export function Register() {
+    const navigate = useNavigate();
     const [variables, setVariables] = useState({ email: '', password: '', username: '', confirmPassword: '' });
     const [mutate, { data, loading, error }] = useMutation(REGISTER)
     const submit = (e) => {
         e.preventDefault();
         console.log(variables);
         mutate({
-            variables
+            variables,
+            onCompleted: (data) => {
+                if (data?.register?.username) { navigate('/login'); }
+            }
         })
     }
     const onChange = ({ target }) => {
@@ -64,6 +69,7 @@ export function Register() {
                             Register
                         </Button>
                     </div>
+                    have account <Link to='/login'>Login </Link>
                 </Form>
             </Col>
         </Row>
