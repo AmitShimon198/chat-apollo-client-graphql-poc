@@ -6,6 +6,7 @@ type User{
   username: String!
   email: String!
   token: String
+  imageUrl: String
   createdAt: String!
   latestMessage: Message
 }

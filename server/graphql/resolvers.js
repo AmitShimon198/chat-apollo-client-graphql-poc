@@ -14,16 +14,19 @@ module.exports = {
 async function register(_, args) {
     return (await UserModel.create(args)).toObject();
 }
-async function usersGet() {
+async function usersGet(parent, args, { user }) {
     const users = await UserModel.find().lean();
     let mapUsers = []
     for (let index = 0; index < users.length; index++) {
-        const user = users[index];
-        const mUser = mapUser(user)
+        const dbUser = users[index];
+        if (dbUser._id.toString() === user._id.toString()) {
+            continue;
+        }
+        const mUser = mapUser(dbUser)
         const message = await MessageModel.findOne({
             $or: [
-                { from: user._id },
-                { to: user._id }
+                { from: dbUser._id },
+                { to: dbUser._id }
             ]
         })
         if (message?._id) { mapUsers.push({ ...mUser, latestMessage: mapMessage(message.toObject()) }) } else {
@@ -41,6 +44,7 @@ async function login(_, args) {
 function mapUser(user) {
     return {
         ...user,
+        imageUrl: 'https://image.shutterstock.com/image-photo/mountains-under-mist-morning-amazing-260nw-1725825019.jpg',
         id: user._id.toString(),
         createdAt: user.createdAt.toISOString(),
     };
@@ -49,17 +53,22 @@ function mapUser(user) {
 async function messageSend(parent, args, { user }) {
     const { to } = args;
     const toDb = await UserModel.findOne({ _id: to }).lean();
+    debugger
     if (toDb?._id) {
         const message = await MessageModel.create({ ...args, from: user?._id });
-        return mapMessage(message);
+        return mapMessage(message.toObject());
     }
     return null;
 }
 async function messagesGet(parent, args, { user }) {
-    debugger
-    const toDb = await UserModel.findOne({ _id: args.from }).lean();
-    if (toDb?._id) {
-        const messages = await MessageModel.find({ from: toDb?._id, to: user?._id });
+    const other = await UserModel.findOne({ _id: args.from }).lean();
+    if (other?._id) {
+        const messages = await MessageModel.find({
+            $or: [
+                { from: other._id.toString(), to: user._id.toString() },
+                { to: other._id.toString(), from: user._id.toString() }
+            ]
+        }).lean();
         return messages.map(mapMessage);
     }
     return null;
