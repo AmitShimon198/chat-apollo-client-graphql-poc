@@ -2,15 +2,19 @@ import { gql, useLazyQuery } from '@apollo/client';
 import React, { useState } from 'react'
 import { Button, Col, Form, Row } from 'react-bootstrap'
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuthDispatch } from '../context/auth';
 const LOGIN = gql`
 query Login($username: String!, $password: String!) {
     login(username: $username, password: $password) {
+      id
       username
       token
       email
+      createdAt
     }
   }`
 export default function Login() {
+    const dispatch = useAuthDispatch()
     const navigate = useNavigate();
     const [variables, setVariables] = useState({ password: '', username: '' });
     const [login] = useLazyQuery(LOGIN)
@@ -21,7 +25,8 @@ export default function Login() {
             variables,
             onCompleted: (data) => {
                 if (data?.login?.token) {
-                    localStorage.setItem('token', data?.login?.token)
+                    
+                    dispatch({ type: 'Login', payload: data?.login })
                     navigate('/home');
                 }
             }

@@ -22,7 +22,8 @@ async function login(_, args) {
     const user = await UserModel.findOne(args).lean();
     return {
         ...user,
-        createAt: user.createdAt.toISOString(),
+        id: user._id.toString(),
+        createdAt: user.createdAt.toISOString(),
         token: token + user.username
     };
 }
@@ -48,5 +49,5 @@ async function messagesGet(parent, args, { user }) {
 const mapMessage = (message) => ({
     ...message,
     id: message._id,
-    createAt: message.createAt.toISOString()
+    createdAt: message.createdAt.toISOString()
 })

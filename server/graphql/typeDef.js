@@ -6,14 +6,14 @@ type User{
   username: String!
   email: String!
   token: String
-  createAt: String!
+  createdAt: String!
 }
 type Message{
   id: String!
   to: String!
   content:String!
   from:String!
-  createAt: String!
+  createdAt: String!
 }
 type Query {
     usersGet: [User]!
