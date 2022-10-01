@@ -53,7 +53,6 @@ function mapUser(user) {
 async function messageSend(parent, args, { user }) {
     const { to } = args;
     const toDb = await UserModel.findOne({ _id: to }).lean();
-    debugger
     if (toDb?._id) {
         const message = await MessageModel.create({ ...args, from: user?._id });
         return mapMessage(message.toObject());
