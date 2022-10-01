@@ -7,6 +7,7 @@ type User{
   email: String!
   token: String
   createdAt: String!
+  latestMessage: Message
 }
 type Message{
   id: String!

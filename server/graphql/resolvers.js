@@ -15,18 +15,37 @@ async function register(_, args) {
     return (await UserModel.create(args)).toObject();
 }
 async function usersGet() {
-    return await UserModel.find().lean();
+    const users = await UserModel.find().lean();
+    let mapUsers = []
+    for (let index = 0; index < users.length; index++) {
+        const user = users[index];
+        const mUser = mapUser(user)
+        const message = await MessageModel.findOne({
+            $or: [
+                { from: user._id },
+                { to: user._id }
+            ]
+        })
+        if (message?._id) { mapUsers.push({ ...mUser, latestMessage: mapMessage(message.toObject()) }) } else {
+            mapUsers.push({ ...mUser })
+        }
+
+    }
+    return mapUsers;
 }
 async function login(_, args) {
     const token = 'sdvsdvsdvew-';
     const user = await UserModel.findOne(args).lean();
+    return { ...mapUser(user), token: token + user.username };
+}
+function mapUser(user) {
     return {
         ...user,
         id: user._id.toString(),
         createdAt: user.createdAt.toISOString(),
-        token: token + user.username
     };
 }
+
 async function messageSend(parent, args, { user }) {
     const { to } = args;
     const toDb = await UserModel.findOne({ _id: to }).lean();
