@@ -22,6 +22,6 @@ type Query {
 }
 type Mutation {
     register(username: String!, email: String!, password: String!, imageUrl:String): User!
-    sendMessage(content: String!, to: String!): Message
+    messageSend(content: String!, to: String!): Message
 }
 `;

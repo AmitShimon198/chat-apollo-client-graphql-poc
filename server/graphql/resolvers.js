@@ -8,7 +8,7 @@ module.exports = {
     },
     Mutation: {
         register,
-        sendMessage,
+        messageSend,
     }
 };
 async function register(_, args) {
@@ -26,7 +26,7 @@ async function login(_, args) {
         token: token + user.username
     };
 }
-async function sendMessage(parent, args, { user }) {
+async function messageSend(parent, args, { user }) {
     const { to } = args;
     const toDb = await UserModel.findOne({ _id: to }).lean();
     if (toDb?._id) {
